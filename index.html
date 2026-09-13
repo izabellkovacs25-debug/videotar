@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -19,24 +18,33 @@
             color: white;
         }
 
-        /* JELSZÓS KÉPERNYŐ */
+        /* =========================
+           JELSZÓS OLDAL
+        ========================= */
+
         #login {
             position: fixed;
             inset: 0;
             background: #0f0f0f;
+
             display: flex;
             justify-content: center;
             align-items: center;
+
             z-index: 1000;
         }
 
         .login-box {
             width: 90%;
             max-width: 400px;
-            text-align: center;
+
             background: #181818;
+
             padding: 35px;
+
             border-radius: 15px;
+
+            text-align: center;
         }
 
         .login-box h1 {
@@ -45,21 +53,31 @@
 
         .login-box input {
             width: 100%;
+
             padding: 14px;
-            margin: 15px 0;
+
+            margin-top: 15px;
+            margin-bottom: 12px;
+
             border: none;
             border-radius: 8px;
+
             font-size: 16px;
         }
 
         .login-box button {
             width: 100%;
+
             padding: 14px;
-            background: #ff0000;
-            color: white;
+
             border: none;
             border-radius: 8px;
+
+            background: #ff0000;
+            color: white;
+
             font-size: 16px;
+
             cursor: pointer;
         }
 
@@ -68,22 +86,29 @@
         }
 
         #hiba {
-            color: #ff4444;
             display: none;
-            margin-top: 15px;
+            color: #ff4444;
         }
 
-        /* VIDEÓOLDAL */
+
+        /* =========================
+           WEBOLDAL
+        ========================= */
+
         #website {
             display: none;
         }
 
         header {
             height: 60px;
+
             background: #181818;
+
             display: flex;
             align-items: center;
+
             padding: 0 25px;
+
             border-bottom: 1px solid #303030;
         }
 
@@ -92,10 +117,19 @@
             font-size: 22px;
         }
 
+
+        /* =========================
+           VIDEÓK
+        ========================= */
+
         .videos {
             padding: 30px;
+
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+            grid-template-columns:
+                repeat(auto-fill, minmax(280px, 1fr));
+
             gap: 25px;
         }
 
@@ -105,79 +139,129 @@
 
         .thumbnail {
             width: 100%;
+
             aspect-ratio: 16 / 9;
+
             background: #222;
+
             border-radius: 10px;
+
             overflow: hidden;
         }
 
-        .thumbnail video {
+        .thumbnail img {
             width: 100%;
             height: 100%;
+
             object-fit: cover;
+
+            display: block;
+
+            transition: transform 0.2s;
+        }
+
+        .video-card:hover .thumbnail img {
+            transform: scale(1.03);
         }
 
         .video-title {
             font-size: 16px;
+
             margin-top: 10px;
+
             font-weight: bold;
         }
 
-        /* VIDEÓLEJÁTSZÓ */
+
+        /* =========================
+           NAGY VIDEÓ
+        ========================= */
+
         #videoPlayer {
             display: none;
+
             position: fixed;
+
             inset: 0;
+
             background: rgba(0, 0, 0, 0.96);
+
             z-index: 2000;
+
             justify-content: center;
             align-items: center;
+
             padding: 30px;
         }
 
-        #videoPlayer video {
-            max-width: 95%;
-            max-height: 90%;
-            width: auto;
-            height: auto;
+        #youtubeVideo {
+            width: 90vw;
+            height: 80vh;
+
+            max-width: 1400px;
+
+            border: none;
+            border-radius: 10px;
         }
 
         #closeButton {
             position: absolute;
-            top: 20px;
-            right: 30px;
+
+            top: 15px;
+            right: 25px;
+
             font-size: 35px;
+
             color: white;
-            cursor: pointer;
+
             background: none;
+
             border: none;
+
+            cursor: pointer;
+
+            z-index: 2100;
         }
 
+
+        /* =========================
+           TELEFON
+        ========================= */
+
         @media (max-width: 600px) {
+
             .videos {
                 padding: 15px;
+
                 grid-template-columns: 1fr;
             }
 
-            #videoPlayer {
-                padding: 10px;
+            #youtubeVideo {
+                width: 100%;
+                height: 60vh;
             }
 
-            #videoPlayer video {
-                max-width: 100%;
-                max-height: 80%;
-            }
         }
     </style>
 </head>
 
+
 <body>
 
-    <!-- JELSZÓ -->
+
+    <!-- =========================
+         JELSZÓ
+    ========================= -->
+
     <div id="login">
+
         <div class="login-box">
+
             <h1>🔒 Videótár</h1>
-            <p>Az oldal megtekintéséhez add meg a jelszót.</p>
+
+            <p>
+                Az oldal megtekintéséhez add meg a jelszót.
+            </p>
 
             <input
                 type="password"
@@ -186,32 +270,54 @@
                 onkeydown="enter(event)"
             >
 
-            <button onclick="checkPassword()">Belépés</button>
+            <button onclick="checkPassword()">
+                Belépés
+            </button>
 
-            <p id="hiba">Hibás jelszó!</p>
+            <p id="hiba">
+                Hibás jelszó!
+            </p>
+
         </div>
+
     </div>
 
 
-    <!-- WEBOLDAL -->
+
+    <!-- =========================
+         WEBOLDAL
+    ========================= -->
+
     <div id="website">
 
         <header>
-            <h2>🎬 Videótár</h2>
+
+            <h2>
+                🎬 Videótár
+            </h2>
+
         </header>
+
 
         <main class="videos">
 
-            <!-- VIDEÓ 1 -->
-            <div class="video-card"
-                 onclick="openVideo('video1.mp4')">
+
+            <!-- =========================
+                 VIDEÓ 1
+            ========================= -->
+
+            <div
+                class="video-card"
+                onclick="openVideo('ylYqRy6OTWI')"
+            >
 
                 <div class="thumbnail">
-                    <video
-                        src="video1.mp4"
-                        muted
-                        preload="metadata">
-                    </video>
+
+                    <img
+                        src="https://img.youtube.com/vi/ylYqRy6OTWI/maxresdefault.jpg"
+                        alt="Az első videóm"
+                    >
+
                 </div>
 
                 <div class="video-title">
@@ -221,20 +327,26 @@
             </div>
 
 
+
+            <!-- =========================
+                 IDE JÖHETNEK KÉSŐBB
+                 AZ ÚJ VIDEÓK
+            ========================= -->
+
             <!--
-            IDE JÖHETNEK KÉSŐBB AZ ÚJ VIDEÓK.
 
-            Például:
-
-            <div class="video-card"
-                 onclick="openVideo('video2.mp4')">
+            <div
+                class="video-card"
+                onclick="openVideo('YOUTUBE_ID')"
+            >
 
                 <div class="thumbnail">
-                    <video
-                        src="video2.mp4"
-                        muted
-                        preload="metadata">
-                    </video>
+
+                    <img
+                        src="https://img.youtube.com/vi/YOUTUBE_ID/maxresdefault.jpg"
+                        alt="Második videó"
+                    >
+
                 </div>
 
                 <div class="video-title">
@@ -242,88 +354,123 @@
                 </div>
 
             </div>
+
             -->
 
+
         </main>
+
     </div>
 
 
-    <!-- NAGY VIDEÓLEJÁTSZÓ -->
+
+    <!-- =========================
+         VIDEÓLEJÁTSZÓ
+    ========================= -->
+
     <div id="videoPlayer">
 
-        <button id="closeButton" onclick="closeVideo()">
+        <button
+            id="closeButton"
+            onclick="closeVideo()"
+        >
             ✕
         </button>
 
-        <video
-            id="mainVideo"
-            controls
-            autoplay>
-        </video>
+
+        <iframe
+            id="youtubeVideo"
+            allow="autoplay; fullscreen"
+            allowfullscreen>
+        </iframe>
 
     </div>
+
 
 
     <script>
 
-        /* JELSZÓ */
+        /* =========================
+           JELSZÓ
+        ========================= */
+
         function checkPassword() {
 
             const password =
                 document.getElementById("password").value;
 
+
             if (password === "alma") {
 
-                document.getElementById("login").style.display = "none";
-                document.getElementById("website").style.display = "block";
+                document.getElementById("login").style.display =
+                    "none";
+
+                document.getElementById("website").style.display =
+                    "block";
 
             } else {
 
-                document.getElementById("hiba").style.display = "block";
+                document.getElementById("hiba").style.display =
+                    "block";
 
             }
+
         }
 
 
         /* ENTER BILLENTYŰ */
+
         function enter(event) {
 
             if (event.key === "Enter") {
+
                 checkPassword();
+
             }
 
         }
 
 
-        /* VIDEÓ MEGNYITÁSA */
-        function openVideo(video) {
+
+        /* =========================
+           VIDEÓ MEGNYITÁSA
+        ========================= */
+
+        function openVideo(videoId) {
 
             const player =
                 document.getElementById("videoPlayer");
 
-            const mainVideo =
-                document.getElementById("mainVideo");
+            const youtube =
+                document.getElementById("youtubeVideo");
 
-            mainVideo.src = video;
+
+            youtube.src =
+                "https://www.youtube.com/embed/"
+                + videoId
+                + "?autoplay=1";
+
 
             player.style.display = "flex";
-
-            mainVideo.play();
 
         }
 
 
-        /* VIDEÓ BEZÁRÁSA */
+
+        /* =========================
+           VIDEÓ BEZÁRÁSA
+        ========================= */
+
         function closeVideo() {
 
             const player =
                 document.getElementById("videoPlayer");
 
-            const mainVideo =
-                document.getElementById("mainVideo");
+            const youtube =
+                document.getElementById("youtubeVideo");
 
-            mainVideo.pause();
-            mainVideo.src = "";
+
+            youtube.src = "";
 
             player.style.display = "none";
 
@@ -331,6 +478,6 @@
 
     </script>
 
+
 </body>
 </html>
-```
