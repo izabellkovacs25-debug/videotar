@@ -1,0 +1,336 @@
+```html
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Videótár</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f0f0f;
+            color: white;
+        }
+
+        /* JELSZÓS KÉPERNYŐ */
+        #login {
+            position: fixed;
+            inset: 0;
+            background: #0f0f0f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-box {
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            background: #181818;
+            padding: 35px;
+            border-radius: 15px;
+        }
+
+        .login-box h1 {
+            margin-top: 0;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 14px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 14px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login-box button:hover {
+            background: #cc0000;
+        }
+
+        #hiba {
+            color: #ff4444;
+            display: none;
+            margin-top: 15px;
+        }
+
+        /* VIDEÓOLDAL */
+        #website {
+            display: none;
+        }
+
+        header {
+            height: 60px;
+            background: #181818;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            border-bottom: 1px solid #303030;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .videos {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .video-card {
+            cursor: pointer;
+        }
+
+        .thumbnail {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .thumbnail video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-title {
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        /* VIDEÓLEJÁTSZÓ */
+        #videoPlayer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.96);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        #videoPlayer video {
+            max-width: 95%;
+            max-height: 90%;
+            width: auto;
+            height: auto;
+        }
+
+        #closeButton {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 35px;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        @media (max-width: 600px) {
+            .videos {
+                padding: 15px;
+                grid-template-columns: 1fr;
+            }
+
+            #videoPlayer {
+                padding: 10px;
+            }
+
+            #videoPlayer video {
+                max-width: 100%;
+                max-height: 80%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- JELSZÓ -->
+    <div id="login">
+        <div class="login-box">
+            <h1>🔒 Videótár</h1>
+            <p>Az oldal megtekintéséhez add meg a jelszót.</p>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Jelszó"
+                onkeydown="enter(event)"
+            >
+
+            <button onclick="checkPassword()">Belépés</button>
+
+            <p id="hiba">Hibás jelszó!</p>
+        </div>
+    </div>
+
+
+    <!-- WEBOLDAL -->
+    <div id="website">
+
+        <header>
+            <h2>🎬 Videótár</h2>
+        </header>
+
+        <main class="videos">
+
+            <!-- VIDEÓ 1 -->
+            <div class="video-card"
+                 onclick="openVideo('video1.mp4')">
+
+                <div class="thumbnail">
+                    <video
+                        src="video1.mp4"
+                        muted
+                        preload="metadata">
+                    </video>
+                </div>
+
+                <div class="video-title">
+                    Az első videóm
+                </div>
+
+            </div>
+
+
+            <!--
+            IDE JÖHETNEK KÉSŐBB AZ ÚJ VIDEÓK.
+
+            Például:
+
+            <div class="video-card"
+                 onclick="openVideo('video2.mp4')">
+
+                <div class="thumbnail">
+                    <video
+                        src="video2.mp4"
+                        muted
+                        preload="metadata">
+                    </video>
+                </div>
+
+                <div class="video-title">
+                    Második videó
+                </div>
+
+            </div>
+            -->
+
+        </main>
+    </div>
+
+
+    <!-- NAGY VIDEÓLEJÁTSZÓ -->
+    <div id="videoPlayer">
+
+        <button id="closeButton" onclick="closeVideo()">
+            ✕
+        </button>
+
+        <video
+            id="mainVideo"
+            controls
+            autoplay>
+        </video>
+
+    </div>
+
+
+    <script>
+
+        /* JELSZÓ */
+        function checkPassword() {
+
+            const password =
+                document.getElementById("password").value;
+
+            if (password === "alma") {
+
+                document.getElementById("login").style.display = "none";
+                document.getElementById("website").style.display = "block";
+
+            } else {
+
+                document.getElementById("hiba").style.display = "block";
+
+            }
+        }
+
+
+        /* ENTER BILLENTYŰ */
+        function enter(event) {
+
+            if (event.key === "Enter") {
+                checkPassword();
+            }
+
+        }
+
+
+        /* VIDEÓ MEGNYITÁSA */
+        function openVideo(video) {
+
+            const player =
+                document.getElementById("videoPlayer");
+
+            const mainVideo =
+                document.getElementById("mainVideo");
+
+            mainVideo.src = video;
+
+            player.style.display = "flex";
+
+            mainVideo.play();
+
+        }
+
+
+        /* VIDEÓ BEZÁRÁSA */
+        function closeVideo() {
+
+            const player =
+                document.getElementById("videoPlayer");
+
+            const mainVideo =
+                document.getElementById("mainVideo");
+
+            mainVideo.pause();
+            mainVideo.src = "";
+
+            player.style.display = "none";
+
+        }
+
+    </script>
+
+</body>
+</html>
+```
