@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9B Órarend - Éppen milyen órám van?</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        min-height: 100vh;
+        color: #222;
+        padding: 20px;
+    }
+    header {
+        text-align: center;
+        color: #fff;
+        margin-bottom: 20px;
+    }
+    header h1 {
+        margin: 0 0 5px 0;
+        font-size: 1.8em;
+    }
+    header p {
+        margin: 0;
+        opacity: 0.85;
+        font-size: 0.95em;
+    }
+    #clock {
+        text-align: center;
+        color: #fff;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+    }
+    .status-card {
+        max-width: 520px;
+        margin: 0 auto 25px auto;
+        background: #fff;
+        border-radius: 16px;
+        padding: 25px 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        text-align: center;
+    }
+    .status-card.lesson { border-top: 8px solid #2e7d32; }
+    .status-card.break  { border-top: 8px solid #f9a825; }
+    .status-card.before { border-top: 8px solid #1565c0; }
+    .status-card.after  { border-top: 8px solid #6a1b9a; }
+    .status-card.weekend{ border-top: 8px solid #757575; }
+    .status-card.hole   { border-top: 8px solid #ad1457; }
+
+    .status-tag {
+        display: inline-block;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        color: #fff;
+    }
+    .lesson .status-tag { background: #2e7d32; }
+    .break .status-tag  { background: #f9a825; }
+    .before .status-tag { background: #1565c0; }
+    .after .status-tag  { background: #6a1b9a; }
+    .weekend .status-tag{ background: #757575; }
+    .hole .status-tag   { background: #ad1457; }
+
+    .subject {
+        font-size: 2.4em;
+        font-weight: 700;
+        margin: 5px 0;
+        color: #222;
+    }
+    .detail {
+        font-size: 1.05em;
+        color: #555;
+        margin: 4px 0;
+    }
+    .countdown {
+        font-size: 1.6em;
+        font-weight: bold;
+        color: #d84315;
+        margin: 10px 0 0 0;
+    }
+    .progress-outer {
+        margin-top: 15px;
+        width: 100%;
+        height: 10px;
+        border-radius: 5px;
+        background: #e0e0e0;
+        overflow: hidden;
+    }
+    .progress-inner {
+        height: 100%;
+        background: linear-gradient(90deg, #43a047, #2e7d32);
+        width: 0%;
+        transition: width 0.5s linear;
+    }
+
+    table {
+        border-collapse: collapse;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        min-width: 320px;
+        max-width: 900px;
+        width: 100%;
+    }
+    caption {
+        caption-side: top;
+        color: #fff;
+        padding-bottom: 10px;
+        font-size: 1.1em;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px 6px;
+        text-align: center;
+        font-size: 0.9em;
+    }
+    thead th {
+        background: #1e3c72;
+        color: #fff;
+    }
+    tbody th {
+        background: #f0f2f5;
+        white-space: nowrap;
+    }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    td.today-col { background: #fff3cd; }
+    tr.current-row td, tr.current-row th { background: #c8e6c9 !important; font-weight: bold; }
+    td.empty-cell { color: #aaa; font-style: italic; }
+
+    footer {
+        text-align: center;
+        color: #dce3f0;
+        font-size: 0.8em;
+        margin-top: 25px;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>9B - Éppen milyen órám van?</h1>
+    <p>Biatorbágyi Innovatív Technikum és Gimnázium, Antall József u. 1.</p>
+</header>
+
+<div id="clock">--:--:--</div>
+
+<div id="statusCard" class="status-card">
+    <div class="status-tag" id="statusTag">Betöltés...</div>
+    <div class="subject" id="subjectText">-</div>
+    <div class="detail" id="detailText"></div>
+    <div class="countdown" id="countdownText"></div>
+    <div class="progress-outer"><div class="progress-inner" id="progressBar"></div></div>
+</div>
+
+<table id="scheduleTable">
+    <caption>Heti órarend (9B)</caption>
+    <thead>
+        <tr>
+            <th>Óra</th>
+            <th>Hé</th>
+            <th>Ke</th>
+            <th>Sz</th>
+            <th>Cs</th>
+            <th>Pé</th>
+        </tr>
+    </thead>
+    <tbody id="scheduleBody"></tbody>
+</table>
+
+<footer>Csengetési rend: 9. évfolyam szerint (8:15 - 14:45) &middot; Az oldal élőben frissül.</footer>
+
+<script>
+    // ---- Csengetési rend (9. évf./11G/11I/10G oszlop) ----
+    function toMin(h, m) { return h * 60 + m; }
+
+    const periods = [
+        { num: 1, start: toMin(8, 15),  end: toMin(9, 0)  },
+        { num: 2, start: toMin(9, 10),  end: toMin(9, 55) },
+        { num: 3, start: toMin(10, 10), end: toMin(10, 55) },
+        { num: 4, start: toMin(11, 5),  end: toMin(11, 50) },
+        { num: 5, start: toMin(12, 0),  end: toMin(12, 45) },
+        { num: 6, start: toMin(13, 10), end: toMin(13, 55) },
+        { num: 7, start: toMin(14, 5),  end: toMin(14, 45) },
+    ];
+
+    function fmt(min) {
+        const h = Math.floor(min / 60);
+        const m = min % 60;
+        return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+    }
+
+    // ---- Órarend (9B) - getDay(): 1=Hétfő ... 5=Péntek ----
+    // Az összevont (bontott) csoportos órák "/" jellel vannak feltüntetve.
+    const schedule = {
+        1: { name: 'Hétfő',     lessons: ['IR', 'TEST', 'MUNKISM', 'KTERMTUD', 'MAT', 'ANG', 'PROG AL'] },
+        2: { name: 'Kedd',      lessons: ['MNY', 'TEST', 'SPA / NÉM', 'TÖRT', 'MAT / DIGKULT', 'DIGKULT / MAT', null] },
+        3: { name: 'Szerda',    lessons: ['TÖRT', 'IR', 'MAT', 'ANG', 'OFŐ', 'GAZDJOGISM / INFTÁ VI.', 'KOM / IKT I.'] },
+        4: { name: 'Csütörtök', lessons: ['IR', 'GAZDJOGISM / INFTÁ VI.', 'ANG', 'SPA / NÉM', 'GÉPÍ / PROG AL', 'TÖRT', 'KOM / GÉPÍ'] },
+        5: { name: 'Péntek',    lessons: ['TEST', 'ANG', 'SPA / NÉM', 'KTERMTUD', 'KTERMTUD', 'GAZDJOGISM / INFTÁ VI.', 'GÉPÍ'] },
+    };
+
+    const dayNames = ['Vasárnap', 'Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat'];
+
+    function buildTable() {
+        const tbody = document.getElementById('scheduleBody');
+        tbody.innerHTML = '';
+        for (let i = 0; i < periods.length; i++) {
+            const tr = document.createElement('tr');
+            tr.id = 'row-p' + periods[i].num;
+            const th = document.createElement('th');
+            th.innerHTML = periods[i].num + '.<br><small>' + fmt(periods[i].start) + '-' + fmt(periods[i].end) + '</small>';
+            tr.appendChild(th);
+            for (let d = 1; d <= 5; d++) {
+                const td = document.createElement('td');
+                td.id = 'cell-' + d + '-' + periods[i].num;
+                const lesson = schedule[d].lessons[i];
+                if (lesson) {
+                    td.textContent = lesson;
+                } else {
+                    td.textContent = 'lyukasóra';
+                    td.classList.add('empty-cell');
+                }
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        }
+    }
+
+    function clearHighlights() {
+        document.querySelectorAll('.current-row').forEach(el => el.classList.remove('current-row'));
+        document.querySelectorAll('.today-col').forEach(el => el.classList.remove('today-col'));
+    }
+
+    function update() {
+        const now = new Date();
+        const clockEl = document.getElementById('clock');
+        clockEl.textContent = now.toLocaleTimeString('hu-HU') + ' — ' + dayNames[now.getDay()];
+
+        const nowMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+        const day = now.getDay();
+
+        clearHighlights();
+
+        if (day >= 1 && day <= 5) {
+            for (let i = 0; i < periods.length; i++) {
+                const cell = document.getElementById('cell-' + day + '-' + periods[i].num);
+                if (cell) cell.classList.add('today-col');
+            }
+        }
+
+        const card = document.getElementById('statusCard');
+        const tag = document.getElementById('statusTag');
+        const subjectText = document.getElementById('subjectText');
+        const detailText = document.getElementById('detailText');
+        const countdownText = document.getElementById('countdownText');
+        const progressBar = document.getElementById('progressBar');
+
+        card.className = 'status-card';
+        progressBar.style.width = '0%';
+
+        if (day === 0 || day === 6) {
+            card.classList.add('weekend');
+            tag.textContent = 'Hétvége';
+            subjectText.textContent = 'Nincs tanítás';
+            detailText.textContent = 'Élvezd a szabadidődet! 🎉';
+            countdownText.textContent = '';
+            return;
+        }
+
+        const daySchedule = schedule[day];
+        let current = null;
+        for (const p of periods) {
+            if (nowMin >= p.start && nowMin < p.end) { current = p; break; }
+        }
+
+        if (current) {
+            const row = document.getElementById('row-p' + current.num);
+            if (row) row.classList.add('current-row');
+
+            const lesson = daySchedule.lessons[current.num - 1];
+            const remaining = Math.ceil(current.end - nowMin);
+            const total = current.end - current.start;
+            const elapsed = nowMin - current.start;
+            const percent = Math.min(100, Math.max(0, (elapsed / total) * 100));
+            progressBar.style.width = percent + '%';
+
+            if (lesson) {
+                card.classList.add('lesson');
+                tag.textContent = current.num + '. óra folyik';
+                subjectText.textContent = lesson;
+                detailText.textContent = fmt(current.start) + ' - ' + fmt(current.end);
+                countdownText.textContent = remaining + ' perc múlva vége';
+            } else {
+                card.classList.add('hole');
+                tag.textContent = current.num + '. óra';
+                subjectText.textContent = 'Lyukasóra';
+                detailText.textContent = fmt(current.start) + ' - ' + fmt(current.end);
+                countdownText.textContent = remaining + ' perc múlva vége';
+            }
+            return;
+        }
+
+        if (nowMin < periods[0].start) {
+            const firstLesson = daySchedule.lessons[0];
+            const untilStart = Math.ceil(periods[0].start - nowMin);
+            card.classList.add('before');
+            tag.textContent = 'Még nem kezdődött el a tanítás';
+            subjectText.textContent = firstLesson || 'Lyukasóra';
+            detailText.textContent = '1. óra: ' + fmt(periods[0].start) + ' - ' + fmt(periods[0].end);
+            countdownText.textContent = untilStart + ' perc múlva kezdődik';
+            const row = document.getElementById('row-p' + periods[0].num);
+            if (row) row.classList.add('current-row');
+            return;
+        }
+
+        if (nowMin >= periods[periods.length - 1].end) {
+            card.classList.add('after');
+            tag.textContent = 'Vége a mai tanításnak';
+            subjectText.textContent = 'Szabad vagy! 🎉';
+            detailText.textContent = 'Utolsó (' + periods[periods.length - 1].num + '.) óra véget ért ' + fmt(periods[periods.length - 1].end) + '-kor.';
+            countdownText.textContent = '';
+            return;
+        }
+
+        let next = null;
+        for (const p of periods) {
+            if (p.start > nowMin) { next = p; break; }
+        }
+        if (next) {
+            const nextLesson = daySchedule.lessons[next.num - 1];
+            const untilStart = Math.ceil(next.start - nowMin);
+            card.classList.add('break');
+            tag.textContent = 'Szünet';
+            subjectText.textContent = nextLesson || 'Lyukasóra';
+            detailText.textContent = 'Következő: ' + next.num + '. óra, ' + fmt(next.start) + ' - ' + fmt(next.end);
+            countdownText.textContent = untilStart + ' perc múlva kezdődik';
+            const row = document.getElementById('row-p' + next.num);
+            if (row) row.classList.add('current-row');
+        }
+    }
+
+    buildTable();
+    update();
+    setInterval(update, 1000);
+</script>
+
+</body>
+</html>
